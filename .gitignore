@@ -1,0 +1,8 @@
+.env
+Caddyfile
+.deployed-version
+.venv/
+__pycache__/
+*.pyc
+backups/
+data/

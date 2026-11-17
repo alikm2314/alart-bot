@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const source=fs.readFileSync('web/app/app.js','utf8');
+const nodes={'#continue':{disabled:false},'#quote-card':{innerHTML:'',insertAdjacentHTML(){}},'#coupon':{value:''}};
+const pending=[];
+const context={state:{page:'builder',plan:{id:7,name:'test'},paymentMethod:'manual',catalog:{stars_enabled:false}},$:(key)=>nodes[key],post:(_path,body)=>new Promise(resolve=>pending.push({body,resolve})),clean:String,tr:String,displayMoney:(v,c)=>`${v} ${c}`};
+vm.createContext(context);
+vm.runInContext(source.slice(source.indexOf('let quoteSequence='),source.indexOf('async function startCheckout')),context);
+(async()=>{
+ const first=context.quote();
+ nodes['#coupon'].value='NEW';const second=context.quote();
+ pending[1].resolve({listed_minor:100,discount_minor:10,final_minor:90,currency:'IRR'});await second;
+ assert.equal(nodes['#continue'].disabled,false,'manual checkout must work when Stars is disabled');
+ assert.match(nodes['#quote-card'].innerHTML,/90 IRR/);
+ assert.equal(context.state.quote.selection.coupon_code,'NEW');
+ pending[0].resolve({listed_minor:200,discount_minor:0,final_minor:200,currency:'XTR'});await first;
+ assert.equal(context.state.quote.final_minor,90,'late quote must not overwrite latest selection');
+ assert.equal(context.state.quote.selection.coupon_code,'NEW');
+ const copied=[];const copyContext={navigator:{clipboard:{writeText:async value=>copied.push(value)}}};vm.createContext(copyContext);
+ vm.runInContext(source.slice(source.indexOf('async function copyText('),source.indexOf('async function resumeOrder(')),copyContext);
+ await copyContext.copyText('https://panel.example:2096/sub/preserved');
+ assert.deepEqual(copied,['https://panel.example:2096/sub/preserved']);
+ console.log('Customer flow regressions passed: manual currency, delayed quote, frozen selection, exact clipboard value');
+})().catch(error=>{console.error(error);process.exitCode=1});

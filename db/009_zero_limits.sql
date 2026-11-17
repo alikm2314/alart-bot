@@ -1,0 +1,16 @@
+ALTER TABLE plans DROP CONSTRAINT IF EXISTS plans_traffic_gb_check;
+ALTER TABLE plans ADD CONSTRAINT plans_traffic_gb_check CHECK (traffic_gb IS NULL OR traffic_gb>=0);
+ALTER TABLE plans DROP CONSTRAINT IF EXISTS plans_user_limit_check;
+ALTER TABLE plans ADD CONSTRAINT plans_user_limit_check CHECK (user_limit>=0);
+ALTER TABLE pricing_rules DROP CONSTRAINT IF EXISTS pricing_rules_min_users_check;
+ALTER TABLE pricing_rules ADD CONSTRAINT pricing_rules_min_users_check CHECK (min_users>=0);
+ALTER TABLE pricing_rules DROP CONSTRAINT IF EXISTS pricing_rules_min_traffic_gb_check;
+ALTER TABLE pricing_rules ADD CONSTRAINT pricing_rules_min_traffic_gb_check CHECK (min_traffic_gb>=0);
+ALTER TABLE pricing_rules DROP CONSTRAINT IF EXISTS pricing_rules_min_days_check;
+ALTER TABLE pricing_rules ADD CONSTRAINT pricing_rules_min_days_check CHECK (min_days>=0);
+ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS subscriptions_traffic_limit_bytes_check;
+ALTER TABLE subscriptions ADD CONSTRAINT subscriptions_traffic_limit_bytes_check CHECK (traffic_limit_bytes IS NULL OR traffic_limit_bytes>=0);
+ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS subscriptions_user_limit_check;
+ALTER TABLE subscriptions ADD CONSTRAINT subscriptions_user_limit_check CHECK (user_limit IS NULL OR user_limit>=0);
+ALTER TABLE provisioned_configurations ADD CONSTRAINT provisioned_configurations_user_limit_check CHECK (user_limit>=0);
+ALTER TABLE provisioned_configurations ADD CONSTRAINT provisioned_configurations_traffic_limit_check CHECK (traffic_limit_bytes IS NULL OR traffic_limit_bytes>=0);

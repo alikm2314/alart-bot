@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const html=fs.readFileSync('web/panel/index.html','utf8');
+const script=fs.readFileSync('web/panel/panel.js','utf8');
+assert.match(html,/<div id="app-shell"[^>]*hidden>/);
+assert.match(html,/<div id="login-screen" class="login-screen">/);
+assert.match(script,/if\(!state\.me\?\.role\)return;/);
+assert.match(script,/showApp\(\);/);
+assert.match(script,/function badge\(text, bad=false\)/);
+assert.match(script,/card\(panel\.name,/);
+assert.doesNotMatch(script,/card\(`\$\{escapeHtml\(panel\.name\)/);
+console.log('admin shell stays hidden until role verification');
